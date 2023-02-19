@@ -19,6 +19,12 @@ pipeline {
                 always {
                      junit "build/test-results/**/*.xml"
                 }
+                success {
+                     publishChecks qualityGate: [
+                        [$class: 'ErrorCountCheck', threshold: 1],
+                        [$class: 'FailedThresholdCheck', unstableThreshold: 1]
+                     ]
+                }
             }
         }
     }
