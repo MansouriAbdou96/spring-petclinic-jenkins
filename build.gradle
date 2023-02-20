@@ -38,7 +38,6 @@ dependencies {
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'junit:junit:4.13.2'
-  classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:9.9.0.65466'
 }
 
 tasks.named('test') {
