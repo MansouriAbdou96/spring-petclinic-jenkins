@@ -32,7 +32,7 @@ pipeline {
                 failure {
                     emailext body: 'The SonarQube analysis has failed. Please check the build log for details.',
                          subject: 'SonarQube Analysis Failed',
-                         to: $MY_EMAIL
+                        to: "${MY_EMAIL}"
                 }
             }
         }
