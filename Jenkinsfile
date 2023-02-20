@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage ('Build') {
             steps {
-                sh "./gradlew build"
+                sh "./gradlew build --refresh-dependencies"
             }
         }
 
