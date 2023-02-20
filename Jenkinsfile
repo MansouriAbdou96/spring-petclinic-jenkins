@@ -28,6 +28,12 @@ pipeline {
                     sh "./gradlew sonar"
                 }
             }
+            post {
+                failure {
+                    emailext body: 'The SonarQube analysis has failed. Please check the build log for details.',
+                             subject: 'SonarQube Analysis Failed'
+                }
+            }
         }
     }
 }
