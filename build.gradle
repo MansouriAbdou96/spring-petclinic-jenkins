@@ -14,6 +14,7 @@ sourceCompatibility = '17'
 repositories {
   jcenter()
   mavenCentral()
+  gradlePluginPortal()
 }
 
 ext.webjarsFontawesomeVersion = "4.7.0"
