@@ -65,10 +65,6 @@ pipeline {
         }
         
         stage('Create Infrastructure'){
-            when {
-                branch 'main'
-            }
-            
             steps {
                 withCredentials([[
                   $class: 'AmazonWebServicesCredentialsBinding',
@@ -102,10 +98,6 @@ pipeline {
         }
         
         stage('Configure Infrastructure') {
-            when {
-                branch 'main'
-            }
-            
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'petclinic-key-pair', keyFileVariable: 'PRIVATE_KEY_FILE')]){
                     dir('IaC/ansible'){
@@ -126,9 +118,6 @@ pipeline {
         }
         
         stage('Deploy App') {
-            when {
-                branch 'main'
-            }
             steps {
                 sh "./gradlew clean build -DMYSQL_URL=${MYSQL_URL}"
                 
