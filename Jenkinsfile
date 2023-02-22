@@ -40,13 +40,11 @@ pipeline {
                 always {
                      junit "build/test-results/**/*.xml"
                 }
-            }
 
-            post {
                 failure {
                     emailNotification("Test")
                 }
-            }    
+            } 
         }
 
         stage('SonarQube Analysis') {
