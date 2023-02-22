@@ -1,11 +1,8 @@
 def emailNotification(stageName){
-    post {
-        failure {
-            emailext body: "The ${stageName} has failed. Please check the build log for details.",
-                     subject: "${stageName} Failed",
-                     to: "$MY_EMAIL"
-        }
-    }
+
+    emailext    body: "The ${stageName} has failed. Please check the build log for details.",
+                subject: "${stageName} Failed",
+                to: "$MY_EMAIL"
 }
 
 pipeline {
@@ -23,7 +20,11 @@ pipeline {
                 sh "./gradlew build"
             }
 
-            emailNotification('Build')
+            post {
+                failure {
+                    emailNotification('Build')
+                }
+            }
         }
 
         stage ('Test') {
@@ -41,7 +42,11 @@ pipeline {
                 }
             }
 
-            emailNotification("Test")
+            post {
+                failure {
+                    emailNotification("Test")
+                }
+            }    
         }
 
         stage('SonarQube Analysis') {
@@ -54,8 +59,11 @@ pipeline {
                     sh "./gradlew sonar"
                 }
             }
-            
-            emailNotification("SonarQube Analysis")
+            post {
+                failure {
+                    emailNotification("SonarQube Analysis")
+                }
+            }
         }
         
         stage('Create Infrastructure'){
@@ -88,7 +96,11 @@ pipeline {
                 archiveArtifacts artifacts: 'IaC/ansible/inventory.txt'
             }
 
-            emailNotification("Create Infrastructure")
+            post {
+                failure {
+                    emailNotification("Create Infrastructure")
+                }
+            }
         }
         
         stage('Configure Infrastructure') {
@@ -107,7 +119,12 @@ pipeline {
                 } 
             }
 
-            emailNotification("Configure Infrastructure")
+            post {
+                failure{
+                    emailNotification("Configure Infrastructure")
+                }
+            }
+            
         }
         
         stage('Deploy App') {
@@ -126,8 +143,11 @@ pipeline {
                     }
                 } 
             }
-
-            emailNotification("Deploy App")
+            post {
+                failure {
+                    emailNotification("Deploy App")
+                }
+            }
         }
     }
 }
