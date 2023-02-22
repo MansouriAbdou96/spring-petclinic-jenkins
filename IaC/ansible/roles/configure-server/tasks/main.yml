@@ -1,0 +1,22 @@
+---
+
+- name: update apt packages
+  become: true
+  apt: 
+    update_cache: yes
+
+- name: upgrade packages
+  become: true 
+  apt: 
+    upgrade: yes
+
+- name: remove dependencies that are no longer required 
+  become: true
+  apt:
+    autoremove: yes 
+
+- name: Install OpenJDK 17 package
+  become: true
+  apt:
+    name: openjdk-17-jdk-headless
+    state: present

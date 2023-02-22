@@ -1,0 +1,17 @@
+---
+
+- name: creates directory
+  file: 
+    path: ~/build
+    state: directory
+
+- name: Extract the zipped artifact
+  unarchive:
+    src: /home/jenkins/workspace/petclinic/artifact.tar.gz
+    dest: ~/build/
+
+- name: Run Spring Boot application
+  become: true
+  command: java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql
+  args:
+    chdir: ~/build/libs/
