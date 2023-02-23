@@ -104,11 +104,13 @@ pipeline {
 
             post {
                 failure {
-                    destroyInfra()
+                    script {
+                        destroyInfra()
 
-                    emailext body: "The Create Infrastructure has failed. Please check the build log for details.",
-                             subject: "Create Infrastructure Failed",
-                             to: "$MY_EMAIL"
+                        emailext body: "The Create Infrastructure has failed. Please check the build log for details.",
+                                subject: "Create Infrastructure Failed",
+                                to: "$MY_EMAIL"
+                    }
                 }
             }
         }
@@ -117,24 +119,25 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'petclinic-key-pair', keyFileVariable: 'PRIVATE_KEY_FILE')]){
                     dir('IaC/ansible'){
-                    sh''' 
-                        cat inventory.txt
-                    '''
-                    sh '''
-                        ansible-playbook -i inventory.txt config-server.yml --private-key=$PRIVATE_KEY_FILE
-                    '''
+                        sh''' 
+                            cat inventory.txt
+                        '''
+                        sh '''
+                            ansible-playbook -i inventory.txt config-server.yml --private-key=$PRIVATE_KEY_FILE -u ubuntu
+                        '''
                     }
                 } 
             }
 
             post {
-                
                 failure{
-                    destroyInfra()
+                    script {
+                        destroyInfra()
                     
-                    emailext body: "The Configure Infrastructure has failed. Please check the build log for details.",
-                             subject: "Configure Infrastructure Failed",
-                             to: "$MY_EMAIL"
+                        emailext body: "The Configure Infrastructure has failed. Please check the build log for details.",
+                                subject: "Configure Infrastructure Failed",
+                                to: "$MY_EMAIL"
+                    }
                 }
             }
             
@@ -149,17 +152,21 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'petclinic-key-pair', keyFileVariable: 'PRIVATE_KEY_FILE')]){
                     dir('IaC/ansible'){
                         sh "cat inventory.txt"
-                        sh "ansible-playbook -i inventory.txt deploy-app.yml --private-key=$PRIVATE_KEY_FILE"
+                        sh '''
+                            ansible-playbook -i inventory.txt deploy-app.yml --private-key=$PRIVATE_KEY_FILE -u ubuntu
+                        '''
                     }
                 } 
             }
             post {
                 failure {
-                    destroyInfra()
+                    script {
+                        destroyInfra()
                     
-                    emailext body: "The Deploy App has failed. Please check the build log for details.",
-                             subject: "Deploy App Failed",
-                             to: "$MY_EMAIL"
+                        emailext body: "The Deploy App has failed. Please check the build log for details.",
+                                subject: "Deploy App Failed",
+                                to: "$MY_EMAIL"
+                    }
                 }
             }
         }
