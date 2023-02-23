@@ -54,7 +54,7 @@ resource "aws_security_group" "petclinicSecGroup" {
 resource "aws_instance" "petclinic_server" {
   ami           = var.AMItoUse
   instance_type = "t2.micro"
-  key_name      = "petclinic.pem"
+  key_name      = "petclinic"
 
   security_groups = [aws_security_group.petclinicSecGroup.name]
 
