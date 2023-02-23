@@ -1,8 +1,19 @@
-def emailNotification(stageName){
-
-    emailext    body: "The ${stageName} has failed. Please check the build log for details.",
-                subject: "${stageName} Failed",
-                to: "$MY_EMAIL"
+def destroyInfra() {
+    withCredentials([[
+                  $class: 'AmazonWebServicesCredentialsBinding',
+                  credentialsId: 'my-aws-creds',
+                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]){
+                    sh "aws configure set aws_session_token '$AWS_SESSION_TOKEN'"
+                    
+                    dir("IaC/terraform/app-server"){
+                        sh '''
+                            terraform init
+                            terraform destroy -var "buildID=${BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
+                        '''
+                    }
+                }
 }
 
 pipeline {
@@ -12,9 +23,7 @@ pipeline {
 
     stages {
         stage ('Build') {
-            when {
-                branch 'dev'
-            }
+            when { branch 'dev' }
             
             steps {
                 sh "./gradlew build"
@@ -22,15 +31,15 @@ pipeline {
 
             post {
                 failure {
-                    emailNotification('Build')
+                    emailext body: "The Build has failed. Please check the build log for details.",
+                             subject: "Build Failed",
+                             to: "$MY_EMAIL"
                 }
             }
         }
 
         stage ('Test') {
-            when {
-                branch 'dev'
-            }
+            when { branch 'dev' }
             
             steps {
                 sh "./gradlew test"
@@ -42,15 +51,15 @@ pipeline {
                 }
 
                 failure {
-                    emailNotification("Test")
+                    emailext body: "The Test has failed. Please check the build log for details.",
+                             subject: "Test Failed",
+                             to: "$MY_EMAIL"
                 }
             } 
         }
 
         stage('SonarQube Analysis') {
-            when {
-                branch 'dev'
-            }
+            when { branch 'dev' }
             
             steps {
                 withSonarQubeEnv("sonarqube-petclinic") {
@@ -59,7 +68,9 @@ pipeline {
             }
             post {
                 failure {
-                    emailNotification("SonarQube Analysis")
+                    emailext body: "The SonarQube Analysis has failed. Please check the build log for details.",
+                             subject: "SonarQube Analysis Failed",
+                             to: "$MY_EMAIL"
                 }
             }
         }
@@ -88,17 +99,16 @@ pipeline {
                 }
                 
                 archiveArtifacts artifacts: 'IaC/ansible/inventory.txt'
+                archiveArtifacts artifacts: 'IaC/terraform/app-server/terraform.tfstate'
             }
 
             post {
                 failure {
-                    dir("IaC/terraform/app-server"){
-                       sh '''
-                            terraform init
-                            terraform destroy -var "buildID=${BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
-                        '''
-                    }
-                    emailNotification("Create Infrastructure")
+                    destroyInfra()
+
+                    emailext body: "The Create Infrastructure has failed. Please check the build log for details.",
+                             subject: "Create Infrastructure Failed",
+                             to: "$MY_EMAIL"
                 }
             }
         }
@@ -120,13 +130,11 @@ pipeline {
             post {
                 
                 failure{
-                    dir("IaC/terraform/app-server"){
-                        sh '''
-                            terraform init
-                            terraform destroy -var "buildID=${BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
-                        '''
-                    }
-                    emailNotification("Configure Infrastructure")
+                    destroyInfra()
+                    
+                    emailext body: "The Configure Infrastructure has failed. Please check the build log for details.",
+                             subject: "Configure Infrastructure Failed",
+                             to: "$MY_EMAIL"
                 }
             }
             
@@ -141,13 +149,17 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'petclinic-key-pair', keyFileVariable: 'PRIVATE_KEY_FILE')]){
                     dir('IaC/ansible'){
                         sh "cat inventory.txt"
-                        sh "ansibe-playbook -i inventory.txt deploy-app.yml --private-key=$PRIVATE_KEY_FILE"
+                        sh "ansible-playbook -i inventory.txt deploy-app.yml --private-key=$PRIVATE_KEY_FILE"
                     }
                 } 
             }
             post {
                 failure {
-                    emailNotification("Deploy App")
+                    destroyInfra()
+                    
+                    emailext body: "The Deploy App has failed. Please check the build log for details.",
+                             subject: "Deploy App Failed",
+                             to: "$MY_EMAIL"
                 }
             }
         }
