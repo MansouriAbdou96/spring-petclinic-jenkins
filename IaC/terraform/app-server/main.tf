@@ -17,6 +17,10 @@ variable "AMItoUse" {
   type        = string
   description = "ami to use for the petclinic server"
 }
+variable "buildID" {
+  type        = string
+  description = "jenkins Build ID"
+}
 
 resource "aws_security_group" "petclinicSecGroup" {
   description = "Allowing port 8080 and 22"
@@ -59,7 +63,7 @@ resource "aws_instance" "petclinic_server" {
   security_groups = [aws_security_group.petclinicSecGroup.name]
 
   tags = {
-    "Name" = "petclinicInstance"
+    "Name" = "petclinic-Instance-${var.buildID}"
   }
 }
 
