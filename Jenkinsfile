@@ -117,7 +117,7 @@ pipeline {
         
         stage('Configure Infrastructure') {
             steps {
-                sshagent(credentials: ['petclinic-key-pair']) {
+                sshagent(credentials: ['petclinic_key']) {
                     dir('IaC/ansible'){
                         sh "cat inventory.txt"
                         sh '''
@@ -147,7 +147,7 @@ pipeline {
                 
                 sh "tar -C build -czvf artifact.tar.gz ."
                 
-                sshagent(credentials: ['petclinic-key-pair']) {
+                sshagent(credentials: ['petclinic_key']) {
                     dir('IaC/ansible'){
                         sh "cat inventory.txt"
                         sh '''
