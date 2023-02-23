@@ -121,6 +121,8 @@ pipeline {
                     dir('IaC/ansible'){
                         sh''' 
                             cat inventory.txt
+
+                            sleep 120
                         '''
                         sh '''
                             ansible-playbook -i inventory.txt config-server.yml --private-key=$PRIVATE_KEY_FILE -u ubuntu
