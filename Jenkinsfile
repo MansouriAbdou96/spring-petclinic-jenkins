@@ -159,7 +159,7 @@ pipeline {
             post {
                 failure {
                     script {
-                        destroyInfra()
+                        // destroyInfra()
                     
                         emailext body: "The Deploy App has failed. Please check the build log for details.",
                                 subject: "Deploy App Failed",

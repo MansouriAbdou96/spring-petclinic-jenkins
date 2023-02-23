@@ -11,7 +11,7 @@
     dest: ~/build/
 
 - name: Run Spring Boot application
-  become: true
-  command: java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql
+  shell: |
+    java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql
   args:
     chdir: ~/build/libs/
