@@ -107,7 +107,9 @@ pipeline {
                     sh''' 
                         cat inventory.txt
                     '''
-                    sh "ansibe-playbook -i inventory.txt config-server.yml --private-key=$PRIVATE_KEY_FILE"
+                    sh '''
+                        ansibe-playbook -i inventory.txt config-server.yml --private-key=$PRIVATE_KEY_FILE
+                    '''
                     }
                 } 
             }
