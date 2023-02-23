@@ -78,7 +78,7 @@ pipeline {
                         sh''' 
                             terraform init 
                             terraform validate
-                            terraform appy -auto-approve
+                            terraform apply -auto-approve
                         '''
 
                         sh''' 
