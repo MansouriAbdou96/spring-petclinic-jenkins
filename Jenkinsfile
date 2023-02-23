@@ -78,7 +78,7 @@ pipeline {
                         sh''' 
                             terraform init 
                             terraform validate
-                            terraform apply -auto-approve
+                            terraform apply -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
                         '''
 
                         sh''' 
