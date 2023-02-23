@@ -117,18 +117,14 @@ pipeline {
         
         stage('Configure Infrastructure') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'petclinic-key-pair', keyFileVariable: 'PRIVATE_KEY_FILE')]){
+                sshagent(credentials: ['petclinic-key-pair']) {
                     dir('IaC/ansible'){
-                        sh''' 
-                            cat inventory.txt
-
-                            sleep 120
-                        '''
+                        sh "cat inventory.txt"
                         sh '''
-                            ansible-playbook -i inventory.txt config-server.yml --private-key=$PRIVATE_KEY_FILE -u ubuntu
+                            ansible-playbook -i inventory.txt config-server.yml
                         '''
                     }
-                } 
+                }
             }
 
             post {
@@ -151,11 +147,11 @@ pipeline {
                 
                 sh "tar -C build -czvf artifact.tar.gz ."
                 
-                withCredentials([sshUserPrivateKey(credentialsId: 'petclinic-key-pair', keyFileVariable: 'PRIVATE_KEY_FILE')]){
+                sshagent(credentials: ['petclinic-key-pair']) {
                     dir('IaC/ansible'){
                         sh "cat inventory.txt"
                         sh '''
-                            ansible-playbook -i inventory.txt deploy-app.yml --private-key=$PRIVATE_KEY_FILE -u ubuntu
+                            ansible-playbook -i inventory.txt deploy-app.yml
                         '''
                     }
                 } 
