@@ -82,7 +82,7 @@ pipeline {
                         '''
 
                         sh''' 
-                            terraform output -raw petclinic-ip >> ../ansible/inventory.txt
+                            terraform output -raw petclinic-ip >> ../../ansible/inventory.txt
                         '''
                     }
                 }
@@ -92,6 +92,9 @@ pipeline {
 
             post {
                 failure {
+                    dir("IaC/terraform/app-server"){
+                        sh "terraform destroy -var 'AMItoUse=ami-0557a15b87f6559cf' -auto-approve"
+                    }
                     emailNotification("Create Infrastructure")
                 }
             }
