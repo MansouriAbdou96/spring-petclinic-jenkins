@@ -144,9 +144,7 @@ pipeline {
         stage('Deploy App') {
             steps {
                 sh ''' 
-                    export MYSQL_URL=${MYSQL_URL}
-                    
-                    ./gradlew clean build
+                    ./gradlew clean build -DMYSQL_URL=${MYSQL_URL}
                 '''
                 
                 sh "tar -C build -czvf artifact.tar.gz ."

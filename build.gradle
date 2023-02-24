@@ -49,3 +49,16 @@ dependencies {
 tasks.named('test') {
   useJUnitPlatform()
 }
+
+def mysqlUrl = System.getProperty('MYSQL_URL')
+
+// Add the application-mysql.properties file to the build
+processResources {
+    filesMatching('**/application-mysql.properties') {
+        expand([
+                MYSQL_URL: mysqlUrl,
+                MYSQL_USER: System.getProperty('MYSQL_USER', 'petclinic'),
+                MYSQL_PASS: System.getProperty('MYSQL_PASS', 'petclinic')
+        ])
+    }
+}
