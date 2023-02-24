@@ -143,7 +143,11 @@ pipeline {
         
         stage('Deploy App') {
             steps {
-                sh "./gradlew clean build -DMYSQL_URL=${MYSQL_URL}"
+                sh ''' 
+                    export MYSQL_URL=${MYSQL_URL}
+                    
+                    ./gradlew clean build
+                '''
                 
                 sh "tar -C build -czvf artifact.tar.gz ."
                 
@@ -159,7 +163,7 @@ pipeline {
             post {
                 failure {
                     script {
-                        // destroyInfra()
+                        destroyInfra()
                     
                         emailext body: "The Deploy App has failed. Please check the build log for details.",
                                 subject: "Deploy App Failed",
