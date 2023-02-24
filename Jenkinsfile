@@ -170,5 +170,47 @@ pipeline {
                 }
             }
         }
+
+        stage('Smoke Test'){
+            steps {
+                dir('IaC/terraform/app-server')
+                    sh ''' 
+                        export SERVER_IP=$(terraform output -raw petclinic-ip)
+
+                        export URL="http://${SERVER_IP}:8080
+                        echo "${URL}"
+
+                        # Set maximum number of retries
+                        MAX_RETRIES=10
+                        RETRY_COUNT=0
+
+                        # Wait for API to be ready
+                        while true; do
+                            if curl "${URL}" | grep "ok"; then
+                                break
+                            fi
+                            RETRY_COUNT=$((RETRY_COUNT + 1))
+                            if [ ${RETRY_COUNT} -eq ${MAX_RETRIES} ]; then
+                                echo "Website URL is not ready after ${MAX_RETRIES} retries."
+                                exit 1
+                            fi
+                            # Wait for 5 seconds before retrying
+                            sleep 5
+                        done
+                    '''
+            }
+
+            post{
+                failure {
+                    script {
+                        destroyInfra() 
+
+                        emailext body: "The Smoke Test has failed. Please check the build log for details.",
+                                subject: "Smoke Test Failed",
+                                to: "$MY_EMAIL"
+                    }
+                }
+            }
+        }
     }
 }

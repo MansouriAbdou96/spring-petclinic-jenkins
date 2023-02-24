@@ -24,7 +24,7 @@ variable "buildID" {
 
 resource "aws_security_group" "petclinicSecGroup" {
   description = "Allowing port 8080 and 22"
-  name        = "petclinicSecGroup"
+  name        = "petclinicSecGroup-${var.buildID}"
 
   ingress {
     from_port   = 22
