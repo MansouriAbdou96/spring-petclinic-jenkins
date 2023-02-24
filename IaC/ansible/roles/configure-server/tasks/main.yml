@@ -15,6 +15,7 @@
     msg: "Artifact has been extracted successfully"
 
 - name: Run Spring Boot application
+  become: true
   shell: nohup java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql &
   args:
     chdir: ~/build/libs/
