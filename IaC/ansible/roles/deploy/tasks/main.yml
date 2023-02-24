@@ -9,9 +9,13 @@
   unarchive:
     src: /home/jenkins/workspace/petclinic/artifact.tar.gz
     dest: ~/build/
+    
+- name: Verify that artifact has been extracted
+  debug:
+    msg: "Artifact has been extracted successfully"
 
 - name: Run Spring Boot application
-  shell: |
-    java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql
+  become: true
+  shell: nohup java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql &
   args:
     chdir: ~/build/libs/

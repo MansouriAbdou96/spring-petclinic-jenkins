@@ -1,21 +1,22 @@
 ---
 
-- name: creates directory
-  file: 
-    path: ~/build
-    state: directory
-
-- name: Extract the zipped artifact
-  unarchive:
-    src: /home/jenkins/workspace/petclinic/artifact.tar.gz
-    dest: ~/build/
-    
-- name: Verify that artifact has been extracted
-  debug:
-    msg: "Artifact has been extracted successfully"
-
-- name: Run Spring Boot application
+- name: update apt packages
   become: true
-  shell: nohup java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql &
-  args:
-    chdir: ~/build/libs/
+  apt: 
+    update_cache: yes
+
+- name: upgrade packages
+  become: true 
+  apt: 
+    upgrade: yes
+
+- name: remove dependencies that are no longer required 
+  become: true
+  apt:
+    autoremove: yes 
+
+- name: Install OpenJDK 17 package
+  become: true
+  apt:
+    name: openjdk-17-jdk-headless
+    state: present
