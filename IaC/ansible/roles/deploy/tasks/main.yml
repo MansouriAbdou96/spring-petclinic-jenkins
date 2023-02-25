@@ -19,4 +19,4 @@
   shell: |
     nohup java -jar spring-petclinic-3.0.0.jar --spring.profiles.active=mysql &
   args:
-    chdir: ~/build/libs/
+    chdir: /home/ubuntu/build/libs
