@@ -173,11 +173,11 @@ pipeline {
 
         stage('Smoke Test'){
             steps {
-                dir('IaC/terraform/app-server')
+                dir('IaC/terraform/app-server'){
                     sh ''' 
                         export SERVER_IP=$(terraform output -raw petclinic-ip)
 
-                        export URL="http://${SERVER_IP}:8080
+                        export URL="http://${SERVER_IP}:8080"
                         echo "${URL}"
 
                         # Set maximum number of retries
@@ -186,7 +186,7 @@ pipeline {
 
                         # Wait for API to be ready
                         while true; do
-                            if curl "${URL}" | grep "ok"; then
+                            if curl -I "${URL}" | grep "HTTP/1.1 2.."; then
                                 break
                             fi
                             RETRY_COUNT=$((RETRY_COUNT + 1))
@@ -198,19 +198,20 @@ pipeline {
                             sleep 5
                         done
                     '''
-            }
-
-            post{
-                failure {
-                    script {
-                        destroyInfra() 
-
-                        emailext body: "The Smoke Test has failed. Please check the build log for details.",
-                                subject: "Smoke Test Failed",
-                                to: "$MY_EMAIL"
-                    }
                 }
-            }
+            }   
+
+            // post{
+            //     failure {
+            //         script {
+            //             destroyInfra() 
+
+            //             emailext body: "The Smoke Test has failed. Please check the build log for details.",
+            //                     subject: "Smoke Test Failed",
+            //                     to: "$MY_EMAIL"
+            //         }
+            //     }
+            // }
         }
     }
 }
