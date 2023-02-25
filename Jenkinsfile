@@ -127,17 +127,17 @@ pipeline {
                 }
             }
 
-            post {
-                failure{
-                    script {
-                        // destroyInfra()
+            // post {
+            //     failure{
+            //         script {
+            //             destroyInfra()
                     
-                        // emailext body: "The Configure Infrastructure has failed. Please check the build log for details.",
-                        //         subject: "Configure Infrastructure Failed",
-                        //         to: "$MY_EMAIL"
-                    }
-                }
-            }
+            //             emailext body: "The Configure Infrastructure has failed. Please check the build log for details.",
+            //                     subject: "Configure Infrastructure Failed",
+            //                     to: "$MY_EMAIL"
+            //         }
+            //     }
+            // }
             
         }
         
