@@ -174,6 +174,8 @@ pipeline {
         stage('Smoke Test'){
             steps {
                 dir('IaC/terraform/app-server'){
+                    sh 'terraform init'
+                    
                     sh ''' 
                         export SERVER_IP=$(terraform output -raw petclinic-ip)
 
