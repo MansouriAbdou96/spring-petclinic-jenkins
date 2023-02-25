@@ -158,17 +158,17 @@ pipeline {
                     }
                 } 
             }
-            post {
-                failure {
-                    script {
-                        destroyInfra()
+            // post {
+            //     failure {
+            //         script {
+            //             destroyInfra()
                     
-                        emailext body: "The Deploy App has failed. Please check the build log for details.",
-                                subject: "Deploy App Failed",
-                                to: "$MY_EMAIL"
-                    }
-                }
-            }
+            //             emailext body: "The Deploy App has failed. Please check the build log for details.",
+            //                     subject: "Deploy App Failed",
+            //                     to: "$MY_EMAIL"
+            //         }
+            //     }
+            // }
         }
 
         stage('Smoke Test'){
