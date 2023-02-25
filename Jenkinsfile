@@ -119,7 +119,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['petclinic_key']) {
                     dir('IaC/ansible'){
-                        sh "cat inventory.txt"
+                        sh "cat inventory.txt && sleep 60"
                         sh '''
                             ansible-playbook -i inventory.txt config-server.yml
                         '''
@@ -175,7 +175,7 @@ pipeline {
             steps {
                 dir('IaC/terraform/app-server'){
                     sh 'terraform init'
-                    
+
                     sh ''' 
                         export SERVER_IP=$(terraform output -raw petclinic-ip)
 
