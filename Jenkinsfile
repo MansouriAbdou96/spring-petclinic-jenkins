@@ -265,12 +265,11 @@ pipeline {
                             echo "File not found"
                         else
                             aws s3 cp "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/terraform.tfstate" .
+
+                            terraform init 
+
+                            terraform destroy -var "buildID=${PREV_BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
                         fi
-
-
-                        terraform init 
-
-                        terraform destroy -var "buildID=${PREV_BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
                     '''
                 }
             }
