@@ -270,7 +270,7 @@ pipeline {
 
                     sh''' 
                         if [[ -f prevBuildID.txt ]]; then
-                            cat prevBuildID.txt
+                            cat prevBuildID.txt 2>/dev/null
                         else
                             echo "File not found"
                         fi
