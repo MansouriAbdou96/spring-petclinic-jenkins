@@ -269,11 +269,11 @@ pipeline {
                     '''
 
                     sh''' 
-                        if [ -f "prevBuildID.txt" ]; then
+                        if [[ -f prevBuildID.txt ]]; then
                             cat prevBuildID.txt
                         else
                             echo "File not found"
-                        fi 
+                        fi
                     '''
                     
                     sh '''
