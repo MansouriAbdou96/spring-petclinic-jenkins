@@ -281,14 +281,14 @@ pipeline {
 
                         cd IaC/terraform/app-server 
 
-                        if aws s3 ls "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/" 2>&1 | grep -q 'NoSuchBucket\\|NoSuchKey'; then
-                            echo "File not found"
-                        else
+                        if aws s3 ls "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/" >/dev/null 2>&1; then
                             aws s3 cp "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/terraform.tfstate" .
 
                             terraform init 
 
                             terraform destroy -var "buildID=${PREV_BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
+                        else
+                            echo "File not found"
                         fi
                     '''
                 }
