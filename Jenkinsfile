@@ -218,15 +218,15 @@ pipeline {
             }   
 
             post{
-                failure {
-                    script {
-                        destroyInfra() 
+                // failure {
+                //     script {
+                //         destroyInfra() 
 
-                        emailext body: "The Smoke Test has failed. Please check the build log for details.",
-                                subject: "Smoke Test Failed",
-                                to: "$MY_EMAIL"
-                    }
-                }
+                //         emailext body: "The Smoke Test has failed. Please check the build log for details.",
+                //                 subject: "Smoke Test Failed",
+                //                 to: "$MY_EMAIL"
+                //     }
+                // }
                 success {
                     withCredentials([[
                         $class: 'AmazonWebServicesCredentialsBinding',
@@ -249,7 +249,7 @@ pipeline {
                             echo "$BUILD_ID" > BuildID.txt
                             aws s3 cp BuildID.txt s3://petclinic-mybucket/BuildID.txt
                         '''
-                        archiveArtifacts artifacts: "prevBuildID.txt"
+                        archiveArtifacts artifacts: "prevBuildID.txt", allowEmptyArchive: true
                     }
                 }
             }
