@@ -9,7 +9,7 @@ def destroyInfra() {
                     
                     dir("IaC/terraform/app-server"){
                         sh ''' 
-                            aws s3 cp s3://petclinic-bucket/petclinic-${BUILD_ID}/terraform.tfstate .
+                            aws s3 cp s3://petclinic-mybucket/petclinic-${BUILD_ID}/terraform.tfstate .
                         '''
                         sh '''
                             terraform init
@@ -100,8 +100,8 @@ pipeline {
                         '''
 
                         sh ''' 
-                            aws s3api put-object --bucket petclinic-bucket --key petclinic-${BUILD_ID}
-                            aws s3 cp terraform.tfstate s3://petclinic-bucket/petclinic-${BUILD_ID}/
+                            aws s3api put-object --bucket petclinic-mybucket --key petclinic-${BUILD_ID}
+                            aws s3 cp terraform.tfstate s3://petclinic-mybucket/petclinic-${BUILD_ID}/
                         '''
                     }
                 }
@@ -229,15 +229,15 @@ pipeline {
                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                     ]]){
                         sh ''' 
-                            if aws s3 ls s3://petclinic-bucket/BuildID.txt | grep -q BuildID.txt; then
-                                aws s3 cp s3://petclinic-bucket/BuildID.txt ./prevBuildID.txt
+                            if aws s3 ls s3://petclinic-mybucket/BuildID.txt | grep -q BuildID.txt; then
+                                aws s3 cp s3://petclinic-mybucket/BuildID.txt ./prevBuildID.txt
                             else
                                 echo "File not found in S3 bucket."
                             fi
                         '''
                         sh''' 
                             echo "$BUILD_ID" > BuildID.txt
-                            aws s3 cp BuildID.txt s3://petclinic-bucket/BuildID.txt
+                            aws s3 cp BuildID.txt s3://petclinic-mybucket/BuildID.txt
                         '''
                         archiveArtifacts artifacts: "prevBuildID.txt"
                     }
@@ -261,10 +261,10 @@ pipeline {
 
                         cd IaC/terraform/app-server 
 
-                        if aws s3 ls "s3://petclinic-bucket/petclinic-${PREV_BUILD_ID}/" 2>&1 | grep -q 'NoSuchBucket\|NoSuchKey'; then
+                        if aws s3 ls "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/" 2>&1 | grep -q 'NoSuchBucket\|NoSuchKey'; then
                             echo "File not found"
                         else
-                            aws s3 cp "s3://petclinic-bucket/petclinic-${PREV_BUILD_ID}/terraform.tfstate" .
+                            aws s3 cp "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/terraform.tfstate" .
                         fi
 
 
