@@ -261,7 +261,7 @@ pipeline {
 
                         cd IaC/terraform/app-server 
 
-                        if aws s3 ls "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/" 2>&1 | grep -q 'NoSuchBucket\|NoSuchKey'; then
+                        if aws s3 ls "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/" 2>&1 | grep -q 'NoSuchBucket\\|NoSuchKey'; then
                             echo "File not found"
                         else
                             aws s3 cp "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/terraform.tfstate" .
