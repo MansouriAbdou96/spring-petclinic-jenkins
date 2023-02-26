@@ -8,6 +8,9 @@ def destroyInfra() {
                     sh "aws configure set aws_session_token '$AWS_SESSION_TOKEN'"
                     
                     dir("IaC/terraform/app-server"){
+                        sh ''' 
+                            aws s3 cp s3://petclinic-bucket/petclinic-${BUILD_ID}/terraform.tfstate .
+                        '''
                         sh '''
                             terraform init
                             terraform destroy -var "buildID=${BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
@@ -95,11 +98,16 @@ pipeline {
                         sh''' 
                             terraform output -raw petclinic-ip >> ../../ansible/inventory.txt
                         '''
+
+                        sh ''' 
+                            aws s3api put-object --bucket petclinic-bucket --key petclinic-${BUILD_ID}
+                            aws s3 cp terraform.tfstate s3://petclinic-bucket/petclinic-${BUILD_ID}/
+                        '''
                     }
                 }
                 
                 archiveArtifacts artifacts: 'IaC/ansible/inventory.txt'
-                archiveArtifacts artifacts: 'IaC/terraform/app-server/terraform.tfstate'
+                // archiveArtifacts artifacts: 'IaC/terraform/app-server/terraform.tfstate'
             }
 
             post {
@@ -203,17 +211,75 @@ pipeline {
                 }
             }   
 
-            // post{
-            //     failure {
-            //         script {
-            //             destroyInfra() 
+            post{
+                failure {
+                    script {
+                        destroyInfra() 
 
-            //             emailext body: "The Smoke Test has failed. Please check the build log for details.",
-            //                     subject: "Smoke Test Failed",
-            //                     to: "$MY_EMAIL"
-            //         }
-            //     }
-            // }
+                        emailext body: "The Smoke Test has failed. Please check the build log for details.",
+                                subject: "Smoke Test Failed",
+                                to: "$MY_EMAIL"
+                    }
+                }
+                success {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'my-aws-creds',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]){
+                        sh ''' 
+                            if aws s3 ls s3://petclinic-bucket/BuildID.txt | grep -q BuildID.txt; then
+                                aws s3 cp s3://petclinic-bucket/BuildID.txt ./prevBuildID.txt
+                            else
+                                echo "File not found in S3 bucket."
+                            fi
+                        '''
+                        sh''' 
+                            echo "$BUILD_ID" > BuildID.txt
+                            aws s3 cp BuildID.txt s3://petclinic-bucket/BuildID.txt
+                        '''
+                        archiveArtifacts artifacts: "prevBuildID.txt"
+                    }
+                }
+            }
+        }
+
+        stage('cleanup'){
+            steps{
+                withCredentials([[
+                  $class: 'AmazonWebServicesCredentialsBinding',
+                  credentialsId: 'my-aws-creds',
+                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]){
+                    sh''' 
+                        cat prevBuildID.txt  
+                    '''
+                    sh '''
+                        export PREV_BUILD_ID=$(cat prevBuildID.txt)
+
+                        cd IaC/terraform/app-server 
+
+                        if aws s3 ls "s3://petclinic-bucket/petclinic-${PREV_BUILD_ID}/" 2>&1 | grep -q 'NoSuchBucket\|NoSuchKey'; then
+                            echo "File not found"
+                        else
+                            aws s3 cp "s3://petclinic-bucket/petclinic-${PREV_BUILD_ID}/terraform.tfstate" .
+                        fi
+
+
+                        terraform init 
+
+                        terraform destroy -var "buildID=${PREV_BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
+                    '''
+                }
+            }
+
+            post{
+                success {
+                    echo "The previous build is cleaned up successfully"
+                }
+            }
         }
     }
 }
