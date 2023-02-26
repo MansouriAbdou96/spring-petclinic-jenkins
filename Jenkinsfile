@@ -5,7 +5,10 @@ def destroyInfra() {
                   accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                   secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]){
-                    sh "aws configure set aws_session_token '$AWS_SESSION_TOKEN'"
+                    sh '''
+                        aws configure set aws_session_token '$AWS_SESSION_TOKEN'
+                        aws configure set region us-east-1
+                    '''
                     
                     dir("IaC/terraform/app-server"){
                         sh ''' 
@@ -86,7 +89,10 @@ pipeline {
                   accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                   secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
-                    sh "aws configure set aws_session_token '$AWS_SESSION_TOKEN'"
+                    sh '''
+                        aws configure set aws_session_token '$AWS_SESSION_TOKEN'
+                        aws configure set region us-east-1
+                    '''
                     
                     dir('IaC/terraform/app-server'){
                         sh''' 
@@ -228,6 +234,10 @@ pipeline {
                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                     ]]){
+                        sh '''
+                            aws configure set aws_session_token '$AWS_SESSION_TOKEN'
+                            aws configure set region us-east-1
+                        '''
                         sh ''' 
                             if aws s3 ls s3://petclinic-mybucket/BuildID.txt | grep -q BuildID.txt; then
                                 aws s3 cp s3://petclinic-mybucket/BuildID.txt ./prevBuildID.txt
@@ -253,9 +263,15 @@ pipeline {
                   accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                   secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]){
+                    sh '''
+                        aws configure set aws_session_token '$AWS_SESSION_TOKEN'
+                        aws configure set region us-east-1
+                    '''
+
                     sh''' 
                         cat prevBuildID.txt  
                     '''
+                    
                     sh '''
                         export PREV_BUILD_ID=$(cat prevBuildID.txt)
 
