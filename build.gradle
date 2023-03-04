@@ -1,5 +1,4 @@
 plugins {
-  id 'org.sonarqube' version '4.0.0.2929'
   id 'org.springframework.boot' version '3.0.1'
   id 'io.spring.dependency-management' version '1.1.0'
   id 'java'
@@ -11,16 +10,8 @@ group = 'org.springframework.samples'
 version = '3.0.0'
 sourceCompatibility = '17'
 
-sonar {
-  properties {
-    property "sonar.projectKey", "petclinic"
-  }
-}
-
 repositories {
-  jcenter()
   mavenCentral()
-  gradlePluginPortal()
 }
 
 ext.webjarsFontawesomeVersion = "4.7.0"
@@ -43,7 +34,6 @@ dependencies {
   runtimeOnly 'org.postgresql:postgresql'
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  testImplementation 'junit:junit:4.13.2'
 }
 
 tasks.named('test') {
