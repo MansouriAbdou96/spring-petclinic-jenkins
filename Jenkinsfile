@@ -106,7 +106,7 @@ pipeline {
                         '''
 
                         sh ''' 
-                            aws s3api put-object --bucket petclinic-mybucket --key petclinic-${BUILD_ID}
+                            aws s3api put-object --bucket petclinic-mybucket --key "petclinic-${BUILD_ID}/"
                             aws s3 cp terraform.tfstate s3://petclinic-mybucket/petclinic-${BUILD_ID}/
                         '''
                     }
