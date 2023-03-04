@@ -16,7 +16,7 @@ def destroyInfra() {
                         '''
                         sh '''
                             terraform init
-                            terraform destroy -var "buildID=${BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
+                            terraform destroy -var "buildID=${BUILD_ID}" -auto-approve
                         '''
                     }
                 }
@@ -98,7 +98,7 @@ pipeline {
                         sh''' 
                             terraform init 
                             terraform validate
-                            terraform apply -var "buildID=${BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
+                            terraform apply -var "buildID=${BUILD_ID}" -auto-approve
                         '''
 
                         sh''' 
@@ -270,7 +270,7 @@ pipeline {
 
                     sh''' 
                         if [[ -f prevBuildID.txt ]]; then
-                            cat prevBuildID.txt 2>/dev/null
+                            cat prevBuildID.txt 2> /dev/null
                         else
                             echo "File not found"
                         fi
@@ -281,14 +281,14 @@ pipeline {
 
                         cd IaC/terraform/app-server 
 
-                        if aws s3 ls "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/" >/dev/null 2>&1; then
-                            echo "File not found"
+                        if [ -z "$(aws s3 ls "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/")" ]; then
+                            echo "Folder that's not exist"
                         else
                             aws s3 cp "s3://petclinic-mybucket/petclinic-${PREV_BUILD_ID}/terraform.tfstate" .
 
                             terraform init 
 
-                            terraform destroy -var "buildID=${PREV_BUILD_ID}" -var "AMItoUse=ami-0557a15b87f6559cf" -auto-approve
+                            terraform destroy -var "buildID=${PREV_BUILD_ID}" -auto-approve
                         fi
                     '''
                 }

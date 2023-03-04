@@ -13,10 +13,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "AMItoUse" {
-  type        = string
-  description = "ami to use for the petclinic server"
-}
 variable "buildID" {
   type        = string
   description = "jenkins Build ID"
@@ -56,7 +52,7 @@ resource "aws_security_group" "petclinicSecGroup" {
 }
 
 resource "aws_instance" "petclinic_server" {
-  ami           = var.AMItoUse
+  ami           = "ami-0557a15b87f6559cf"
   instance_type = "t3.small"
   key_name      = "petclinic"
 
